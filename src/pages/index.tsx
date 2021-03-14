@@ -1,4 +1,6 @@
 import { GetServerSideProps } from 'next';
+import dynamic from 'next/dynamic';
+import { useState } from 'react';
 
 import { Title } from '../styles/pages/Index';
 
@@ -11,7 +13,20 @@ interface IHomeProps {
 	recomendedProducts: IProduct[];
 }
 
+// Lazy load do componente de modal
+const ModalLazyLoad = dynamic(
+	() => import('../components/Modal'), // importação do modal
+	{ loading: () => <p>Carregando meu modal...</p>, ssr: false } // mensagem de loading
+)
+
 export default function Home({ recomendedProducts }: IHomeProps) {
+
+	const [isModalOpened, setModalOpened] = useState(false);
+	
+	function handleOpenModal() {
+		setModalOpened(!isModalOpened);
+	}
+
 	return (
 		<div>
 			<Title>Products</Title>
@@ -24,6 +39,10 @@ export default function Home({ recomendedProducts }: IHomeProps) {
 					);
 				})}
 			</ul>
+
+			<button type="button" onClick={() => handleOpenModal()}>Abrir modal</button>
+
+			{isModalOpened && <ModalLazyLoad/> }
 		</div>
 	)
 }
